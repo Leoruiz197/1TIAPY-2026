@@ -32,6 +32,24 @@ Para desenvolvimento com recarga automática:
 python -m flask --app main run --debug
 ```
 
+## Menu no terminal
+
+O `main2.py` oferece acesso ao mesmo CRUD por um menu feito com `match/case`:
+
+```powershell
+python main2.py
+```
+
+O menu permite cadastrar, listar, consultar, atualizar e excluir clientes. Para
+consultas, alterações e exclusões, informe o `_id` exibido no cadastro ou na
+listagem. Na atualização, pressione Enter para manter o valor atual. A exclusão
+exige confirmação.
+
+A opção `6 - Executar testes automatizados` chama `python -m pytest testes -v`
+com o mesmo interpretador usado pelo menu e informa se a suíte passou. O CRUD do
+terminal usa as configurações MongoDB do `.env`; os testes permanecem isolados
+em memória.
+
 ## Rotas
 
 | Método | Rota | Operação | Sucesso |
