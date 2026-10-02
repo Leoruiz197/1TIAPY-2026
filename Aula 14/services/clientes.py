@@ -5,8 +5,8 @@ from models.cliente import Cliente
 
 
 class Clientes:
-    def __init__(self):
-        self.conexao = ConexaoMongo()
+    def __init__(self, conexao=None):
+        self.conexao = conexao if conexao is not None else ConexaoMongo()
         self.colecao = self.conexao.get_collection("clientes")
 
     def inserir_cliente(self, cliente: Cliente):

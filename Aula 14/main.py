@@ -1,22 +1,53 @@
-from models.cliente import Cliente
-from services.clientes import Clientes
+from flask import Flask, jsonify
+from dotenv import load_dotenv
+from pymongo.errors import PyMongoError
+from werkzeug.exceptions import HTTPException
+
+from routes.clientes import clientes_bp, fechar_sistema
 
 
-sistema = Clientes()
+load_dotenv()
 
-cliente = Cliente(
-    nome="Leonardo",
-    email="leo@teste.com",
-    telefone="11999999999",
-    endereco="Rua Teste, 100"
-)
 
-cliente_id = sistema.inserir_cliente(cliente)
+def create_app(config=None):
+    app = Flask(__name__)
+    app.json.ensure_ascii = False
+    if config:
+        app.config.update(config)
 
-print("Cliente cadastrado:", cliente_id)
+    app.register_blueprint(clientes_bp)
+    app.teardown_appcontext(fechar_sistema)
 
-cliente_encontrado = sistema.consultar_cliente(cliente_id)
+    @app.get("/")
+    def inicio():
+        return jsonify({
+            "mensagem": "API de clientes",
+            "rotas": {
+                "/clientes": ["GET", "POST"],
+                "/clientes/<cliente_id>": ["GET", "PUT", "PATCH", "DELETE"]
+            }
+        })
 
-print(cliente_encontrado)
+    @app.errorhandler(HTTPException)
+    def erro_http(erro):
+        resposta = erro.get_response()
+        resposta.data = app.json.dumps({"erro": erro.description})
+        resposta.content_type = "application/json"
+        return resposta
 
-sistema.fechar_conexao()
+    @app.errorhandler(PyMongoError)
+    def erro_banco(erro):
+        app.logger.exception("Erro ao acessar o MongoDB")
+        return jsonify({"erro": "Não foi possível acessar o banco de dados."}), 503
+
+    @app.errorhandler(500)
+    def erro_interno(erro):
+        return jsonify({"erro": "Erro interno do servidor."}), 500
+
+    return app
+
+
+app = create_app()
+
+if __name__ == "__main__":
+    app.run()

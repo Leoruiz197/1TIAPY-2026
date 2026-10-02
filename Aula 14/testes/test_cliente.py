@@ -1,20 +1,4 @@
-import pytest
-
 from models.cliente import Cliente
-from services.clientes import Clientes
-
-
-@pytest.fixture
-def sistema():
-    sistema = Clientes()
-
-    yield sistema
-
-    # Limpa a coleção após cada teste
-    sistema.colecao.delete_many({})
-
-    # Fecha a conexão com o banco
-    sistema.fechar_conexao()
 
 
 def test_inserir_cliente(sistema):
